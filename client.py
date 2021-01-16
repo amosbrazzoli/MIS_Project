@@ -1,8 +1,14 @@
 import socket
+from time import time, sleep
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('localhost', 50000))
-s.sendall(b'''{"fan": [intID, boolActive], "txt": intTxId}''')
-data = s.recv(1024)
-s.close()
-print(f"GOT: {data}")
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect(('localhost', 50000))
+    t0 = time()
+
+    while True:
+        s.sendall(b'''{"fan": [intID, boolActive], "txt": intTxId}''')
+        t0 = time()
+        print("Sent")
+        
+        data = s.recv(1024)
+        print(f"GOT: {data}")
