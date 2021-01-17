@@ -50,6 +50,7 @@ while inputs:
                 del message_queues[s]
 
     for s in writable:
+        MESSAGE = input()
         msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{COMMAND_LEN}}"
         s.send(bytes(msg, 'utf8'))
     

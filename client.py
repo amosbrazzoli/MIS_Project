@@ -8,7 +8,7 @@ from time import time, sleep
 
 
 to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-to_server.connect(('localhost', 50000))
+to_server.connect(('192.168.1.79', 50001))
 
 inputs = [to_server]
 outputs = [to_server]
@@ -30,6 +30,7 @@ while True:
     
     for s in writable:
         if s == to_server:
+            MESSAGE = input()
             msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{SENSOR_LEN}}"
             s.send(bytes(msg, 'utf8'))
 
