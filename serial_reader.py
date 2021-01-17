@@ -1,7 +1,8 @@
 import serial, json
+from time import time
 from random import randint
 
-SERIAL_PATH = "COM3"
+SERIAL_PATH = "COM5"
 BAUD = 115200
 
 def random_message():
@@ -11,21 +12,23 @@ def random_message():
 
 connection = serial.Serial(SERIAL_PATH, BAUD)
 i = 0
+t0 = time()
 
 #print(json.loads(message)["fan"])
 
 while True:
     try:
+        i +=1
         incoming = connection.readline()
         incoming = json.loads(incoming)
-    except:
         print(incoming)
+    except:
+        print(i/(time()-t0), ":", incoming)
     
 
-    i += 1
-    if i % 20 == 0:
+    if i % 100 == 0:
         message = random_message()
         message = json.dumps(message)
-        print(message)
+        print(i/(time()-t0), message)
         connection.write(bytes(message, "utf-8"))
     
