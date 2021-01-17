@@ -4,7 +4,13 @@ int IN_MESSAGE = 128;
 String incoming;
 bool fan1, fan2, fan3, fan4;
 
-
+void set_fan(int pin_int, int on) {
+  if (on == 1){
+    digitalWrite(pin_int, HIGH);
+  } else {
+    digitalWrite(pin_int, LOW);
+  }
+}
 
 void setup() {
     pinMode(1, OUTPUT);
@@ -17,19 +23,16 @@ void setup() {
 
 void loop() {
     if (Serial.available() > 0) {
-        incoming = Serial.readStringUntil("\n");
+        // If there is a command read it
         DynamicJsonDocument doc(1024);
+        incoming = Serial.readStringUntil("\n");
+
+
         deserializeJson(doc, incoming);
+        int pin_id = doc["fan"][0];
+        int state = doc["fan"][1];
 
-        fan1 = doc["fan1"];
-        fan2 = doc["fan2"];
-        fan3 = doc["fan3"];
-        fan4 = doc["fan4"];
-
-        digitalWrite(1, fan1);
-        digitalWrite(2, fan2);
-        digitalWrite(3, fan3);
-        digitalWrite(4, fan4);
+        set_fan(pin_id, state);
     }
 
     DynamicJsonDocument out_doc(1024);
