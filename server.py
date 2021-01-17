@@ -1,10 +1,16 @@
 import select, socket, sys, queue
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setblocking(False)
-server.bind(('localhost', 50000))
-server.listen(5)
-inputs = [server]
+HEADER_LEN = 5
+SENSOR_LEN = 506
+COMMAND_LEN = 250
+
+MESSAGE = '{ "fan": [intID, boolActive] }'
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.setblocking(False)
+client.bind(('localhost', 50000))
+client.listen(5)
+inputs = [client]
 outputs = []
 message_queues = {}
 
@@ -14,9 +20,9 @@ while inputs:
 
     # process readable sockets
     for s in readable:
-        #  if the readable socket is this server
+        #  if the readable socket is this client
         # means that a new connection has arrived
-        if s is server:
+        if s is client:
             # accept the connection
             connection, client_address = s.accept()
             connection.setblocking(False)
@@ -25,11 +31,12 @@ while inputs:
             # generate a connection queue fot the new connection
             message_queues[connection] = queue.Queue()
 
-        # if the socket is not this server
+        # if the socket is not this client
         else:
             # read 1024 bytes of data
-            data = s.recv(1024)
+            data = s.recv(SENSOR_LEN + HEADER_LEN + 1)
             if data:
+                print(f"GOT: {data}")
                 # push the data connection queue
                 message_queues[s].put(data)
                 if s not in outputs:
@@ -43,12 +50,8 @@ while inputs:
                 del message_queues[s]
 
     for s in writable:
-        try:
-            next_message = message_queues[s].get_nowait()
-        except queue.Empty:
-            outputs.remove(s)
-        else:
-            s.send(next_message)
+        msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{COMMAND_LEN}}"
+        s.send(bytes(msg, 'utf8'))
     
     for s in exceptional:
         inputs.remove(s)
