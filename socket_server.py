@@ -1,10 +1,20 @@
 import select, socket, queue, json
 from arduino import MIS_Arduino
 from threading import Thread, Lock
+from time import time
+
+def socket_data_process(from_socket):
+    from_socket.strip()
+    head, message = from_socket[:5], from_socket[6:]
+    head = int(head)
+    return message[:head]
 
 
 
-def socket_loop(arduino):
+def socket_loop(arduino, lockduino):
+    t0 = time()
+    i = 0
+
     HEADER_LEN = 5
     SENSOR_LEN = 506
     COMMAND_LEN = 250
@@ -42,7 +52,12 @@ def socket_loop(arduino):
                 if data:
                     # commands a variation in the arduino
                     print(f"GOT: {data}")
-                    data = json.loads(data)
+                    try:
+                        data = socket_data_process(data)
+                        data = json.loads(data)
+                    except ValueError as v:
+                        print("SEND/REC ERROR: ", v)
+
                     with lockduino:
                         arduino.command(data)
                     # push the data connection queue
@@ -61,7 +76,8 @@ def socket_loop(arduino):
             with lockduino:
                 MESSAGE = arduino.state_dict()
             MESSAGE = json.dumps(MESSAGE)
-            print("SENT")
+            i += 1
+            print("SENT", i/(time()-t0))
             msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{SENSOR_LEN}}"
             s.send(bytes(msg, 'utf8'))
         
