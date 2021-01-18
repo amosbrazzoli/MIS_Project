@@ -1,13 +1,13 @@
+from serial_reader import serial_loop
+from arduino import MIS_Arduino
+from threading import Thread, Lock
+
 import eventlet
 import socketio
-
-from arduino import MIS_Arduino
-from threading import Lock
-from time import sleep
 import json
 
 sio = socketio.Server(async_mode='eventlet')
-                        
+                            
 app = socketio.WSGIApp(sio)
 
 def send_reading():
@@ -36,7 +36,23 @@ def command(sid, data):
         arduino.command(data)
     print("COMMANDED: ", data)
 
+if __name__ == "__main__":
+    arduino = MIS_Arduino("/dev/ttyACM0", 11520)
+    lockduino = Lock()
 
-if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
+    
+
+    t_serial = Thread(target=serial_loop, args=(arduino, lockduino))
+
+    t_serial.start()
     print("STARTED")
+    eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
+
+    t_serial. join()
+
+
+
+
+
+
+
