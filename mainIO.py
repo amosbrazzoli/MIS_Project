@@ -36,7 +36,7 @@ def send_reading():
 @sio.event
 def connect(sid, environ):
     print('CONNECTED: ', sid)
-    sio.start_background_task(send_reading)
+    #sio.start_background_task(send_reading)
 
 @sio.event
 def diconnect(sid):

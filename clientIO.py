@@ -4,23 +4,19 @@ from time import sleep
 from random import randint
 import json
 
-sio = socketio.Client()
+sio = socketio.AsyncClient()
 
-
+def random_message():
+    value = randint(2, 5)
+    state = randint(0, 1)
+    return json.dumps({"fan" : [value, state]})
 
 def command_loop():
-    def random_message():
-        value = randint(2, 5)
-        state = randint(0, 1)
-        return json.dumps({"fan" : [value, state]})
-    data = random_message()
-    sio.emit("command", data)
-    print("COMMANDED: ", data)
-
+    sio.emit('command', random_message())
+    sleep(0.1)
 
 @sio.event
 def connect():
-    sio.start_background_task(command_loop)
     print('CONNECTED')
     
 
@@ -30,12 +26,17 @@ def connect_error():
 
 @sio.event
 def status(data):
-    print('GOT: ', data)
+    pass
+    #print('GOT: ', data)
     
 @sio.event
 def disconnect():
     print('DISCONNECTED')
 
-sio.connect('http://localhost:5000')
+@sio.on("connect")
+def mock_command():
+    sio.start_background_task(command_loop)
 
-sio.wait()
+await sio.connect('http://localhost:5000')
+
+await sio.wait()

@@ -1,2 +1,3 @@
 *.pyc
 .vscode
+nodeJS/node_modules

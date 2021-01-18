@@ -13,20 +13,20 @@ sio = socketio.Server(async_mode='eventlet')
                         
 app = socketio.WSGIApp(sio)
 
-def send_reading():
-    sleep(1)
-
-    if arduino.sent == False:
-        with lockduino:
-            msg = arduino.state_dict()
-        sio.emit("status", msg, broadcast=True)
-        print("SENT: ", msg)
+def send_reading(sid):
+    while True:
+        if arduino.sent == False:
+            with lockduino:
+                msg = arduino.state_dict()
+            sio.emit("status", msg, to=sid)
+            #print("SENT: ", msg)
+        eventlet.sleep(0)
 
 
 @sio.event
 def connect(sid, environ):
     print('CONNECTED: ', sid)
-    sio.start_background_task(send_reading)
+    return True
 
 @sio.event
 def diconnect(sid):
@@ -34,12 +34,15 @@ def diconnect(sid):
 
 @sio.event
 def command(sid, data):
-    data = json.loads(data)
     with lockduino:
         arduino.command(data)
     print("COMMANDED: ", data)
 
+@sio.on('connect')
+def sensor_start(sid, environ):
+    sio.start_background_task(send_reading, sid)
 
 
-eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
-print("STARTED")
+if __name__ == "__main__":
+    eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
+    print("STARTED")
