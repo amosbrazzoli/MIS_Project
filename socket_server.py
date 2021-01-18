@@ -11,7 +11,7 @@ def socket_loop(arduino):
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.setblocking(False)
-    client.bind(('192.168.1.79', 50001))
+    client.bind((client.getsockname()[0], 50001))
     client.listen(5)
     inputs = [client]
     outputs = []

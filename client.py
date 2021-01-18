@@ -1,5 +1,6 @@
 import socket, queue, select, sys
 from time import time, sleep
+from random import randint
 
 """
 999:MESSAGE
@@ -17,21 +18,25 @@ command_queue = queue.Queue()
 HEADER_LEN = 5
 SENSOR_LEN = 506
 COMMAND_LEN = 250
-MESSAGE = '{ "time": ulongT, "HR": floatHR }'
+
+def random_message():
+    value = randint(2, 6)
+    state = randint(0,1)
+    return {"fan" : [value, state]}
 
 while True:
     readable, writable, exceptional = select.select(inputs, outputs, inputs)
 
     for s in readable:
         if s == to_server:
-            data = s. recv(COMMAND_LEN + HEADER_LEN + 1)
+            data = s. recv(SENSOR_LEN + HEADER_LEN + 1)
             if not data: break
             print(data)
     
     for s in writable:
         if s == to_server:
-            MESSAGE = input()
-            msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{SENSOR_LEN}}"
+            MESSAGE = random_message()
+            msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{COMMAND_LEN}}"
             s.send(bytes(msg, 'utf8'))
 
     
