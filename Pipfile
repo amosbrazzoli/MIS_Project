@@ -8,6 +8,8 @@ python-osc = "*"
 pyserial = "*"
 eventlet = "*"
 python-socketio = "*"
+websocket-client = "*"
+requests = "*"
 
 [dev-packages]
 

@@ -35,6 +35,7 @@ class MIS_Arduino:
         self.realys[write["fan"][0]] = write["fan"][1]
 
     def command(self, json_dict):
+        print(json_dict, type(json_dict))
         try:
             pin, state = json_dict["fan"]
             self.relays[pin] = state
