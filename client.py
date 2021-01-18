@@ -1,6 +1,7 @@
 import socket, queue, select, sys
 from time import time, sleep
 from random import randint
+import json
 
 """
 999:MESSAGE
@@ -9,7 +10,7 @@ from random import randint
 
 
 to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-to_server.connect(('192.168.1.79', 50001))
+to_server.connect(('192.168.1.81', 50001))
 
 inputs = [to_server]
 outputs = [to_server]
@@ -19,10 +20,12 @@ HEADER_LEN = 5
 SENSOR_LEN = 506
 COMMAND_LEN = 250
 
+i = 0
+
 def random_message():
-    value = randint(2, 6)
+    value = randint(2, 5)
     state = randint(0,1)
-    return {"fan" : [value, state]}
+    return json.dumps({"fan" : [value, state]})
 
 while True:
     readable, writable, exceptional = select.select(inputs, outputs, inputs)
@@ -31,13 +34,16 @@ while True:
         if s == to_server:
             data = s. recv(SENSOR_LEN + HEADER_LEN + 1)
             if not data: break
-            print(data)
+            #print(data)
     
     for s in writable:
         if s == to_server:
-            MESSAGE = random_message()
-            msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{COMMAND_LEN}}"
-            s.send(bytes(msg, 'utf8'))
+            i += 1
+
+            if i % 10 == 0: 
+                MESSAGE = random_message()
+                msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{COMMAND_LEN}}"
+                s.send(bytes(msg, 'utf8'))
 
     
     for s in exceptional:
