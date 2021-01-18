@@ -26,7 +26,7 @@ class MIS_Arduino:
             self.y = read["y"]
             self.z = read["z"]
         except:
-            print("Invalid Read: ", read)
+            print("ARDUINO INVALID READ: ", read)
 
     def write_update(self, write):
         self.realys[write["fan"][0]] = write["fan"][1]
@@ -35,8 +35,9 @@ class MIS_Arduino:
         try:
             pin, state = json_dict["fan"]
             self.relays[pin] = state
-        except:
-            print("Invalid Command: ", json_dict)
+        except Exception as e:
+            print(e)
+            print("ARDUINO INVALID COMMAND: ", json_dict)
             return False
 
 

@@ -32,8 +32,9 @@ def serial_loop(arduino, lockduino):
         # Almos allways the first json is incomplete
         try:
             incoming = json.loads(incoming)
-        except:
-            print(incoming)
+        except Exception as e:
+            #print(e)
+            #print("SERIAL INPUT INVALID JSON: ", incoming)
             continue
         
         with lockduino:

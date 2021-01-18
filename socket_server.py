@@ -5,9 +5,12 @@ from time import time
 
 def socket_data_process(from_socket):
     from_socket.strip()
+    #print(from_socket)
     head, message = from_socket[:5], from_socket[6:]
+    #print(head, message)
     head = int(head)
-    return message[:head]
+    #print(head)
+    return json.loads(message[:head])
 
 
 
@@ -38,7 +41,7 @@ def socket_loop(arduino, lockduino):
             if s is client:
                 # accept the connection
                 connection, client_address = s.accept()
-                print(f"ACCEPTED: {client_address}")
+                print(f"SOCKET ACCEPTED: {client_address}")
                 connection.setblocking(False)
                 # set the connection in the inputs
                 inputs.append(connection)
@@ -51,12 +54,13 @@ def socket_loop(arduino, lockduino):
                 data = s.recv(COMMAND_LEN + HEADER_LEN + 1)
                 if data:
                     # commands a variation in the arduino
-                    print(f"GOT: {data}")
+                    #print(f"SOCKET GOT: {data}")
                     try:
                         data = socket_data_process(data)
-                        data = json.loads(data)
+                        #print(data)
                     except ValueError as v:
-                        print("SEND/REC ERROR: ", v)
+                        print("SOCKET SEND/REC ERROR: ", data)
+                        continue
 
                     with lockduino:
                         arduino.command(data)
@@ -75,11 +79,14 @@ def socket_loop(arduino, lockduino):
         for s in writable:
             with lockduino:
                 MESSAGE = arduino.state_dict()
-            MESSAGE = json.dumps(MESSAGE)
             i += 1
-            print("SENT", i/(time()-t0))
-            msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{SENSOR_LEN}}"
-            s.send(bytes(msg, 'utf8'))
+            try:
+                MESSAGE = json.dumps(MESSAGE)
+                #print("SOCKET SENT", i/(time()-t0))
+                MESSAGE =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{SENSOR_LEN}}"
+                s.send(bytes(MESSAGE, 'utf8'))
+            except Exception as e:
+                print("SENDING ERROR: ", MESSAGE)
         
         for s in exceptional:
             inputs.remove(s)
