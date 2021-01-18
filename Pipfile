@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 python-osc = "*"
 pyserial = "*"
+eventlet = "*"
+python-socketio = "*"
 
 [dev-packages]
 

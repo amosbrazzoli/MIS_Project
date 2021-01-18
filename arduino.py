@@ -16,6 +16,8 @@ class MIS_Arduino:
 
         self.relays = {}
 
+        self.sent = False
+
     def read_update(self, read):
         try:
             self.last_read = read["time"]
@@ -25,6 +27,7 @@ class MIS_Arduino:
             self.x = read["x"]
             self.y = read["y"]
             self.z = read["z"]
+            self.sent = False
         except:
             print("ARDUINO INVALID READ: ", read)
 
