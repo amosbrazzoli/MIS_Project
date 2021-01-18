@@ -6,16 +6,29 @@ import eventlet
 import socketio
 import json
 
-sio = socketio.Server(async_mode='eventlet')
-                            
+
+arduino = MIS_Arduino("/dev/ttyACM0", 11520)
+lockduino = Lock()
+
+import eventlet
+import socketio
+
+from arduino import MIS_Arduino
+from threading import Lock
+from time import sleep
+import json
+
+arduino = MIS_Arduino("/dev/ttyACM0", 11520)
+lockduino = Lock()
+
+sio = socketio.Server(async_mode='eventlet')                 
 app = socketio.WSGIApp(sio)
 
 def send_reading():
-    sleep(1)
-
     if arduino.sent == False:
         with lockduino:
             msg = arduino.state_dict()
+            #arduino.sent = True
         sio.emit("status", msg, broadcast=True)
         print("SENT: ", msg)
 
@@ -36,19 +49,14 @@ def command(sid, data):
         arduino.command(data)
     print("COMMANDED: ", data)
 
-if __name__ == "__main__":
-    arduino = MIS_Arduino("/dev/ttyACM0", 11520)
-    lockduino = Lock()
+t_serial = Thread(target=serial_loop, args=(arduino, lockduino))
 
-    
+t_serial.start()
+print("SERIAL STARTED")
+print("WSGI STARTED")
+eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
 
-    t_serial = Thread(target=serial_loop, args=(arduino, lockduino))
-
-    t_serial.start()
-    print("STARTED")
-    eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
-
-    t_serial. join()
+t_serial. join()
 
 
 

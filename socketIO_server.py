@@ -6,6 +6,9 @@ from threading import Lock
 from time import sleep
 import json
 
+arduino = MIS_Arduino("/dev/ttyACM0", 11520)
+lockduino = Lock()
+
 sio = socketio.Server(async_mode='eventlet')
                         
 app = socketio.WSGIApp(sio)
@@ -37,6 +40,6 @@ def command(sid, data):
     print("COMMANDED: ", data)
 
 
-if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
-    print("STARTED")
+
+eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
+print("STARTED")
