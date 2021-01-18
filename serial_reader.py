@@ -26,7 +26,6 @@ def serial_loop(arduino):
     #print(json.loads(message)["fan"])
 
     while True:
-        #try:
         i +=1
         incoming = connection.readline()
 
@@ -40,7 +39,7 @@ def serial_loop(arduino):
         with lockduino:
             arduino.read_update(incoming)
             state = arduino.state_dict()
-        #print(state)
+        print(state)
         #except:
             #print(i/(time()-t0), ":", incoming)
 

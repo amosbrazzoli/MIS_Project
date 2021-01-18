@@ -38,7 +38,7 @@ def socket_loop(arduino):
             # if the socket is not this client
             else:
                 # read 1024 bytes of data
-                data = s.recv(SENSOR_LEN + HEADER_LEN + 1)
+                data = s.recv(COMMAND_LEN + HEADER_LEN + 1)
                 if data:
                     # commands a variation in the arduino
                     print(f"GOT: {data}")
@@ -61,7 +61,8 @@ def socket_loop(arduino):
             with lockduino:
                 MESSAGE = arduino.state_dict()
             MESSAGE = json.dumps(MESSAGE)
-            msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{COMMAND_LEN}}"
+            print("SENT")
+            msg =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{SENSOR_LEN}}"
             s.send(bytes(msg, 'utf8'))
         
         for s in exceptional:

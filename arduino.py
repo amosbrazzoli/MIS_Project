@@ -17,13 +17,16 @@ class MIS_Arduino:
         self.relays = {}
 
     def read_update(self, read):
-        self.last_read = read["time"]
-        self.ECG = read["ECG"]
-        self.pressure1 = read["pressure1"]
-        self.pressure2 = read["pressure2"]
-        self.x = read["x"]
-        self.y = read["y"]
-        self.z = read["z"]
+        try:
+            self.last_read = read["time"]
+            self.ECG = read["ECG"]
+            self.pressure1 = read["pressure1"]
+            self.pressure2 = read["pressure2"]
+            self.x = read["x"]
+            self.y = read["y"]
+            self.z = read["z"]
+        except:
+            print("Invalid Read: ", read)
 
     def write_update(self, write):
         self.realys[write["fan"][0]] = write["fan"][1]
