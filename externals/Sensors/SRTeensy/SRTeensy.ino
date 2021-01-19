@@ -3,6 +3,11 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 
+#include <Filters.h>
+#include <Filters/Butterworth.hpp>
+#include <Filters/Notch.hpp>
+#include <Filters/SMA.hpp>
+
 
 int IN_MESSAGE = 128;
 String incoming;
