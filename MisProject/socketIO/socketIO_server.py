@@ -6,14 +6,16 @@ from threading import Lock
 from time import sleep
 import json
 
+# create the arduino object and lock
 arduino = MIS_Arduino("/dev/ttyACM0", 11520)
 lockduino = Lock()
 
-sio = socketio.Server(async_mode='eventlet')
-                        
+# creates the socket.IO and relative server
+sio = socketio.Server(async_mode='eventlet')                 
 app = socketio.WSGIApp(sio)
 
-def send_reading(sid):
+def send_reading():
+    ' helper function to keep sending data over the socket.io '
     while True:
         if arduino.sent == False:
             with lockduino:
@@ -22,25 +24,29 @@ def send_reading(sid):
             #print("SENT: ", msg)
         eventlet.sleep(0)
 
-
+# connection event
 @sio.event
 def connect(sid, environ):
     print('CONNECTED: ', sid)
     return True
 
+# disconnection event
 @sio.event
 def diconnect(sid):
     print('DISCONNECTED: ', sid)
 
+# command event
 @sio.event
 def command(sid, data):
     with lockduino:
         arduino.command(data)
     print("COMMANDED: ", data)
 
+# upon connection tigger the send_reading helper function
 @sio.on('connect')
 def sensor_start(sid, environ):
     sio.start_background_task(send_reading, sid)
+    
 
 
 if __name__ == "__main__":

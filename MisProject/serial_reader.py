@@ -7,7 +7,6 @@ from threading import Thread, Lock
 SERIAL_PATH = "COM5"
 BAUD = 115200
 
-
 arduino = MIS_Arduino("/dev/ttyACM0", 11520)
 lockduino = Lock()
 
@@ -27,6 +26,7 @@ def serial_loop(arduino, lockduino):
 
     while True:
         i +=1
+        # read incoming data  from serial
         incoming = connection.readline()
 
         # Almos allways the first json is incomplete
@@ -37,14 +37,18 @@ def serial_loop(arduino, lockduino):
             #print("SERIAL INPUT INVALID JSON: ", incoming)
             continue
         
+        # acquire lock on the Arduino Object
         with lockduino:
+            # update the Arduino Object with serial data
             arduino.read_update(incoming)
+            # fetch the state of the Arduino Object
             state = arduino.state_dict()
         
-            for k, v in state["relays"].items():
-                message = {"fan" : [k, v]}
-                message = json.dumps(message)
-                connection.write(bytes(message, "utf-8"))
+        # send the relay status as messages to the arduino via serial
+        for k, v in state["relays"].items():
+            message = {"fan" : [k, v]}
+            message = json.dumps(message)
+            connection.write(bytes(message, "utf-8"))
 
 
 

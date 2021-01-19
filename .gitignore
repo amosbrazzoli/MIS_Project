@@ -1,3 +1,5 @@
 *.pyc
 .vscode
 nodeJS/node_modules
+MisProject/arduino.py
+externals/client_nodeJS/node_modules
