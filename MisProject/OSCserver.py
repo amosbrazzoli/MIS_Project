@@ -33,10 +33,12 @@ def osc_loop(arduino, lockduino):
             status2 = arduino.is_pressed[2]
             texture = arduino.texture
 
+        # OSC: /ino/texture, textureID
         # if texture is different
         if texture != status["text"]:
             to_client.send_message("/ino/texture", texture)
         
+        # OSC: /ino/step, [actionID, footID]
         # if 1 steps in
         if status1 == True and status[1] == False:
             to_client.send_message("/ino/step", [1, 1])

@@ -1,3 +1,13 @@
+DEPENDECIES:
+
+PureData:
+    Help >> Find Externals >> mrpeach
+
+Arduino:
+    https://github.com/tttapa/Arduino-Filters/tree/master/src/Filters
+
+
+## TCP socket
 Messages:
 
 INCOMING TO THE VR HEADSET FROM THE RASPBERRY

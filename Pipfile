@@ -10,7 +10,6 @@ eventlet = "*"
 python-socketio = "*"
 websocket-client = "*"
 requests = "*"
-aiohttp = "*"
 
 [dev-packages]
 

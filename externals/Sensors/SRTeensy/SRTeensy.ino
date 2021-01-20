@@ -9,7 +9,7 @@
 #include <Filters/SMA.hpp>
 
 // Sampling Parameters
-const double sampling_f = 50; // Hz
+const double sampling_f = 500; // Hz
 const int sampling_d = min(1, 1000/sampling_f);
 
 // Notch Filter
@@ -52,10 +52,13 @@ void set_fan(int pin_int, int on) {
 }
 
 void setup() {
+    // fans
     pinMode(2, OUTPUT);
     pinMode(3, OUTPUT);
     pinMode(4, OUTPUT);
     pinMode(5, OUTPUT);
+
+    // ECG lom lop for signal control
     pinMode(39, INPUT);
     pinMode(38, INPUT);
     

@@ -24,20 +24,26 @@ socket.on("status", (data) => {
     console.log(data)
 });
 
-// emitts {"fan": [intPIN, 0/1]}
-socket.emit("command", {"fan": [
-    Math.floor(Math.random() * 6),
-    Math.floor(Math.random() * 2)]
-});
+// emitts {"fan": intPIN, "state": 0/1]}
+socket.emit("command", 
+    {
+        "fan": Math.floor(Math.random() * 6),
+        "state": Math.floor(Math.random() * 2)
+    }
+);
 
-// emitts {"wind": [intPIN, floatDir]}
-socket.emit("command", {"fan": 
-    Math.random() * 360
-});
+// emitts { "yaw": floatDir }
+socket.emit("command", 
+    {
+        "yaw": Math.random() * 360
+    }
+);
 
 
-// emitts {"texture": [intID, 0/1]}
-socket.emit("command", {"texture": [
-    Math.floor(Math.random() * 6),
-    Math.floor(Math.random() * 2)]
-});
+// emitts { "id": intID, "value" 0/1] }
+socket.emit("command", 
+    {
+        "id": Math.floor(Math.random() * 6),
+        "value": Math.floor(Math.random() * 2)
+    }
+);

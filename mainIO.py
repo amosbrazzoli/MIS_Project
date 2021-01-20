@@ -1,4 +1,5 @@
 from MisProject.serial_reader import serial_loop
+from MisProject.OSCserver import osc_loop
 from MisProject.arduino import MIS_Arduino
 from threading import Thread, Lock
 
@@ -49,16 +50,22 @@ def sensor_start(sid, environ):
     
 
 t_serial = Thread(target=serial_loop, args=(arduino, lockduino))
+t_osc = Thread(target=osc_loop, args=(arduino, lockduino))
 
 # start serial read thread
 t_serial.start()
 print("SERIAL STARTED")
+
+# start the OSC thread
+t_osc.start()
+print("OPEN SOUND CONTROL STARTED")
 
 # start the socket.io server
 print("WSGI STARTED")
 eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
 
 t_serial. join()
+t_osc.join()
 
 
 

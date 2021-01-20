@@ -4,7 +4,8 @@ from MisProject.utils import area, ECG_Queue
 
 class MIS_Arduino:
     def __init__(self, serial, baud):
-        self.PRESSURE_THRESHOLD = 800
+        self.HIGH_PRESSURE_THRESHOLD = 800
+        self.LOW_PRESSURE_THRESHOLD = 300
         self.R_THRESHOLD = 620
 
         self.serial = serial
@@ -91,13 +92,11 @@ class MIS_Arduino:
             return False
         
         # changes status of the is_pressed dictionary based on the threshold
-        elif pressure > self.PRESSURE_THRESHOLD:
-            if not is_pressed:
-                self.is_pressed[key_id] = True
-                self.steps[key_id] += 1
-        else:
-            if is_pressed:
-                self.is_pressed[key_id] = False
+        elif (pressure > self.HIGH_PRESSURE_THRESHOLD) and not is_pressed:
+            self.is_pressed[key_id] = True
+        elif (pressure < self.LOW_PRESSURE_THRESHOLD) and is_pressed:
+            self.is_pressed[key_id] = False
+            self.steps[key_id] += 1
 
     def ECG_handle(self):
         '''
@@ -127,9 +126,9 @@ class MIS_Arduino:
             Main method handling for commands sent by the VR headset
         '''
         # texture update command
-        if json_dict.get("texture", False):
+        if json_dict.get("id", False) and json_dict.get("value", False):
             try:
-                text_id, status = json_dict["texture"]
+                text_id, status = json_dict["id"], json_dict["value"]
                 if status == 1:
                     self.texture = text_id
             except Exception as e:
@@ -138,9 +137,9 @@ class MIS_Arduino:
                 return False
 
         # fan setting command
-        if json_dict.get("fan", False):
+        if json_dict.get("fan", False) and json_dict.get("state", False):
             try:
-                pin, state = json_dict["fan"]
+                pin, state = json_dict["fan"], json_dict["state"]
                 self.relays[pin] = state
             except Exception as e:
                 print(e)
@@ -148,9 +147,9 @@ class MIS_Arduino:
                 return False
         
         # wind setting command
-        if json_dict.get("wind", False):
+        if json_dict.get("yaw", False):
             try:
-                direction = json_dict["wind"]
+                direction = json_dict["yaw"]
 
                 # normalises direction to [0, 1]
                 if direction < 0:
