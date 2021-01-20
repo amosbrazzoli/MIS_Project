@@ -8,6 +8,27 @@
 #include <Filters/Notch.hpp>
 #include <Filters/SMA.hpp>
 
+// Sampling Parameters
+const double sampling_f = 50; // Hz
+const int sampling_d = min(1, 1000/sampling_f);
+
+// Notch Filter
+const double notch_f = 50; // Hz
+const double norm_notch = 2 * notch_f / sampling_f;
+auto filter2 = simpleNotchFIR(norm_notch);
+auto filter3 = simpleNotchFIR(2 * norm_notch);
+
+
+// Base Signal Filtering
+const double H_f = 60; // Hz
+const double L_f = 0.5; // Hz
+const double norm_H = 2 * H_f / sampling_f;
+const double norm_L = 2 * L_f / sampling_f;
+auto filter0 = butter<3>(norm_L);
+auto filter1 = butter<3>(norm_H);
+
+// Timer
+unsigned long t0 = millis();
 
 int IN_MESSAGE = 128;
 String incoming;
@@ -44,23 +65,32 @@ void setup() {
 }
 
 void loop() {
-
-    if (Serial.available() > 0) {
-      deserializeJson(doc, Serial);
-      if (!doc["fan"].isNull()){
-        set_fan(doc["fan"][0], doc["fan"][1]);
-      }
+  // Serial Reading
+  if (Serial.available() > 0) {
+    deserializeJson(doc, Serial);
+    if (!doc["fan"].isNull()){
+      set_fan(doc["fan"][0], doc["fan"][1]);
     }
+  }
+
+  // Serial Write
+  if (millis() - t0 > sampling_d){
+    t0 = millis();
+    auto ECG_read = analogRead(A0);
+    auto lower = filter0(ECG_read);
+    auto f_ECG_read = filter3(filter2(filter1(ECG_read - lower)));
+
     sensors_event_t event; 
     bno.getEvent(&event);
     out_doc["time"] = millis();
-    out_doc["ECG"] = analogRead(A0);
-    out_doc["pressure1"] = analogRead(A1)*100;
-    out_doc["pressure2"] = analogRead(A2)*100;
+    out_doc["ECG"] = f_ECG_read;
+    out_doc["pressure1"] = 1023 - analogRead(A1);
+    out_doc["pressure2"] = 1023 - analogRead(A2);
     out_doc["x"] = event.orientation.x;
     out_doc["y"] = event.orientation.y;
     out_doc["z"] = event.orientation.z;
 
     serializeJson(out_doc, Serial);
     Serial.write("\n");
+  }
 }
