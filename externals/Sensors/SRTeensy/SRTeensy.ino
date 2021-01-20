@@ -30,6 +30,12 @@ auto filter1 = butter<3>(norm_H);
 // Timer
 unsigned long t0 = millis();
 
+// Differentiation
+float delta;
+
+// Last ECG read
+float last = 0;
+
 int IN_MESSAGE = 128;
 String incoming;
 int fan1, fan2, fan3, fan4;
@@ -46,11 +52,12 @@ void set_fan(int pin_int, int on) {
 }
 
 void setup() {
-    pinMode(1, OUTPUT);
     pinMode(2, OUTPUT);
     pinMode(3, OUTPUT);
     pinMode(4, OUTPUT);
-    pinMode(13, OUTPUT);
+    pinMode(5, OUTPUT);
+    pinMode(39, INPUT);
+    pinMode(38, INPUT);
     
     Serial.begin(115200);
     
@@ -79,11 +86,15 @@ void loop() {
     auto ECG_read = analogRead(A0);
     auto lower = filter0(ECG_read);
     auto f_ECG_read = filter3(filter2(filter1(ECG_read - lower)));
-
+    delta = (f_ECG_read - last)/sampling_d;
+    
     sensors_event_t event; 
     bno.getEvent(&event);
     out_doc["time"] = millis();
     out_doc["ECG"] = f_ECG_read;
+    out_doc["lom"] = digitalRead(39);
+    out_doc["lop"] = digitalRead(38);
+    out_doc["delta"] = delta;
     out_doc["pressure1"] = 1023 - analogRead(A1);
     out_doc["pressure2"] = 1023 - analogRead(A2);
     out_doc["x"] = event.orientation.x;
@@ -92,5 +103,6 @@ void loop() {
 
     serializeJson(out_doc, Serial);
     Serial.write("\n");
+    last = f_ECG_read;
   }
 }
