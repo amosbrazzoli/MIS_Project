@@ -45,9 +45,9 @@ DynamicJsonDocument out_doc(1024);
 
 void set_fan(int pin_int, int on) {
   if (on == 1){
-    digitalWriteFast(pin_int, HIGH);
+    digitalWrite(pin_int, HIGH);
   } else {
-    digitalWriteFast(pin_int, LOW);
+    digitalWrite(pin_int, LOW);
   }
 }
 

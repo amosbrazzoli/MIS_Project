@@ -19,7 +19,6 @@ def command_loop():
 def connect():
     print('CONNECTED')
     
-
 @sio.event
 def connect_error():
     print("CONNECT ERROR")

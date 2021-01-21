@@ -29,8 +29,10 @@ def osc_loop(arduino, lockduino):
         # Acquire lock on the Arduino Object
         with lockduino:
             # fetch data from the Arduino Object
-            status1 = arduino.is_pressed[1]
-            status2 = arduino.is_pressed[2]
+            if arduino.is_pressed.get(1, False):
+                status1 = arduino.is_pressed[1]
+            if arduino.is_pressed.get(2, False):
+                status2 = arduino.is_pressed[2]
             texture = arduino.texture
 
         # OSC: /ino/texture, textureID

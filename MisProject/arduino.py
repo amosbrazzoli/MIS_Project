@@ -121,7 +121,7 @@ class MIS_Arduino:
         self.last_beat = self.last_read
 
 
-    def command(self, json_dict):
+    def texture_command(self, json_dict):
         '''
             Main method handling for commands sent by the VR headset
         '''
@@ -136,6 +136,7 @@ class MIS_Arduino:
                 print("ARDUINO INVALID TEXTURE COMMAND: ", json_dict)
                 return False
 
+    def fan_command(self, json_dict):
         # fan setting command
         if json_dict.get("fan", False) and json_dict.get("state", False):
             try:
@@ -145,7 +146,8 @@ class MIS_Arduino:
                 print(e)
                 print("ARDUINO INVALID FAN COMMAND: ", json_dict)
                 return False
-        
+
+    def wind_command(self, json_dict):   
         # wind setting command
         if json_dict.get("yaw", False):
             try:

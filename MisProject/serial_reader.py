@@ -1,5 +1,5 @@
 import serial, json
-from arduino import MIS_Arduino
+from MisProject.arduino import MIS_Arduino
 from time import time,sleep
 from random import randint
 from threading import Thread, Lock
@@ -7,7 +7,7 @@ from threading import Thread, Lock
 SERIAL_PATH = "COM5"
 BAUD = 115200
 
-arduino = MIS_Arduino("/dev/ttyACM0", 11520)
+arduino = MIS_Arduino("/dev/ttyACM0", 115200)
 lockduino = Lock()
 
 def random_message():

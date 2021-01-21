@@ -5,7 +5,6 @@ from threading import Thread, Lock
 
 import eventlet
 import socketio
-import json
 
 # create the arduino object and lock
 arduino = MIS_Arduino("/dev/ttyACM0", 11520)
@@ -36,12 +35,26 @@ def connect(sid, environ):
 def diconnect(sid):
     print('DISCONNECTED: ', sid)
 
-# command event
+# fan command event
 @sio.event
-def command(sid, data):
+def fan(sid, data):
     with lockduino:
-        arduino.command(data)
+        arduino.fan_command(data)
     print("COMMANDED: ", data)
+
+# wind command event
+@sio.event
+def wind(sid, data):
+    with lockduino:
+        arduino.wind_command(data)
+    print("WIND COMMANDED: ", data)
+
+# texture command event
+@sio.event
+def walkingMat(sid, data):
+    with lockduino:
+        arduino.texture_command(data)
+    print("WIND COMMANDED: ", data)
 
 # upon connection tigger the send_reading helper function
 @sio.on('connect')
