@@ -20,7 +20,7 @@ def osc_loop(arduino, lockduino):
     status = {
                 1 : False,
                 2 : False,
-                "txt" : None 
+                "text" : None 
             }
 
     to_client = SimpleUDPClient(IP, PORT)
@@ -39,26 +39,31 @@ def osc_loop(arduino, lockduino):
         # if texture is different
         if texture != status["text"]:
             to_client.send_message("/ino/texture", texture)
-        
+            status["text"] = texture
+            
         # OSC: /ino/step, [actionID, footID]
         # if 1 steps in
-        if status1 == True and status[1] == False:
-            to_client.send_message("/ino/step", [1, 1])
-        # if 1 steps out
-        elif status1 == False and status[1] == True:
-            to_client.send_message("/ino/step", [2, 1])
+        if arduino.is_pressed.get(1, False):
+            if status1 == True and status[1] == False:
+                to_client.send_message("/ino/step", [1, 1])
+            # if 1 steps out
+            elif status1 == False and status[1] == True:
+                to_client.send_message("/ino/step", [2, 1])
+
+            status[1] = status1
 
         # if 2 steps in
-        if status2 == True and status[2] == False:
-            to_client.send_message("/ino/step", [1, 2])
-        # if 2 steps out
-        elif status2 == False and status[2] == True:
-            to_client.send_message("/ino/step", [2, 2])
+        if arduino.is_pressed.get(2, False):
+            if status2 == True and status[2] == False:
+                to_client.send_message("/ino/step", [1, 2])
+            # if 2 steps out
+            elif status2 == False and status[2] == True:
+                to_client.send_message("/ino/step", [2, 2])
 
         # update last received data
-        status[1] = status1
-        status[2] = status2
-        status["txt"] = texture
+        
+            status[2] = status2
+        
 
 
 

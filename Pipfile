@@ -7,9 +7,9 @@ name = "pypi"
 python-osc = "*"
 pyserial = "*"
 eventlet = "*"
-python-socketio = "*"
 websocket-client = "*"
 requests = "*"
+python-socketio = "~=4.6.1"
 
 [dev-packages]
 

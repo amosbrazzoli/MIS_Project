@@ -10,17 +10,23 @@ import socketio
 arduino = MIS_Arduino("/dev/ttyACM0", 11520)
 lockduino = Lock()
 
+static_files = {
+    '/': './public/index.html',
+    '/jquery.js': './public/jquery.js',
+    '/socket.io.js': './public/socket.io.js',
+}
+
 # creates the socket.IO and relative server
 sio = socketio.Server(async_mode='eventlet')                 
-app = socketio.WSGIApp(sio)
+app = socketio.WSGIApp(sio, static_files=static_files)
 
-def send_reading():
+def send_reading(sid):
     ' helper function to keep sending data over the socket.io '
     while True:
         if arduino.sent == False:
             with lockduino:
                 msg = arduino.state_dict()
-            sio.emit("status", msg, to=sid)
+            sio.emit("sensorWalk", msg, to=sid)
             #print("SENT: ", msg)
         eventlet.sleep(0)
 
@@ -75,7 +81,7 @@ print("OPEN SOUND CONTROL STARTED")
 
 # start the socket.io server
 print("WSGI STARTED")
-eventlet.wsgi.server(eventlet.listen(('', 5000)), app, log_output=False)
+eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 5000)), app, log_output=False)
 
 t_serial. join()
 t_osc.join()
