@@ -64,7 +64,24 @@ def osc_loop(arduino, lockduino):
             status[2] = status2
         
 
+if __name__ == "__main__":
+    IP = "127.0.0.1"
+    PORT = 9001
 
+    # Representation of the last received data
+    status = {
+                1 : False,
+                2 : False,
+                "text" : None 
+            }
+
+    to_client = SimpleUDPClient(IP, PORT)
+
+    while True:
+        to_client.send_message("/ino/texture", randint(0,5))
+        to_client.send_message("/ino/step", [randint(0, 3), randint(1, 2)])
+
+        sleep(0.1)
 
 
         
