@@ -1,5 +1,5 @@
-.pyc
-.vscode
+*.pyc
+*.vscode
 nodeJS/node_modules
 externals/client_nodeJS/node_modules
-.DS_Store
+*.DS_Store

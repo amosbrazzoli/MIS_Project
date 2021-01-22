@@ -42,7 +42,7 @@ def serial_loop(arduino, lockduino):
             # update the Arduino Object with serial data
             arduino.read_update(incoming)
             # fetch the state of the Arduino Object
-            state = arduino.state_dict()
+            state = arduino.__dict__
         
         # send the relay status as messages to the arduino via serial
         for k, v in state["relays"].items():
