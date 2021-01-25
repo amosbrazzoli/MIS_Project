@@ -15,7 +15,7 @@ def random_message():
     state = randint(0,1)
     return {"fan" : [value, state]}
 
-def serial_loop(arduino, lockduino):
+def serial_loop(arduino, lockduino, R, W):
     connection = serial.Serial(arduino.serial,
                                 arduino.baud)
                             
@@ -27,28 +27,32 @@ def serial_loop(arduino, lockduino):
     while True:
         i +=1
         # read incoming data  from serial
-        incoming = connection.readline()
+        if R:
+            incoming = connection.readline()
 
-        # Almos allways the first json is incomplete
-        try:
-            incoming = json.loads(incoming)
-        except Exception as e:
-            #print(e)
-            #print("SERIAL INPUT INVALID JSON: ", incoming)
-            continue
+            # Almos allways the first json is incomplete
+            try:
+                incoming = json.loads(incoming)
+            except Exception as e:
+                #print(e)
+                #print("SERIAL INPUT INVALID JSON: ", incoming)
+                continue
+
+            with lockduino:
+                # update the Arduino Object with serial data
+                arduino.read_update(incoming)
         
-        # acquire lock on the Arduino Object
-        with lockduino:
-            # update the Arduino Object with serial data
-            arduino.read_update(incoming)
-            # fetch the state of the Arduino Object
-            state = arduino.__dict__
-        
-        # send the relay status as messages to the arduino via serial
-        for k, v in state["relays"].items():
-            message = {"fan" : [k, v]}
-            message = json.dumps(message)
-            connection.write(bytes(message, "utf-8"))
+        if W:
+            # acquire lock on the Arduino Object
+            with lockduino:
+                # fetch the state of the Arduino Object
+                state = arduino.__dict__
+            
+            # send the relay status as messages to the arduino via serial
+            for k, v in state["relays"].items():
+                message = {"fan" : [k, v]}
+                message = json.dumps(message)
+                connection.write(bytes(message, "utf-8"))
 
 
 

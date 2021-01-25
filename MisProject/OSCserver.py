@@ -12,7 +12,7 @@ Actions
 2: rising
 '''
 
-def osc_loop(arduino, lockduino):
+def osc_loop(arduino, teensy, lockduino, teensylock):
     IP = "127.0.0.1"
     PORT = 9001
 
@@ -33,7 +33,8 @@ def osc_loop(arduino, lockduino):
                 status1 = arduino.is_pressed[1]
             if arduino.is_pressed.get(2, False):
                 status2 = arduino.is_pressed[2]
-            texture = arduino.texture
+        with teensylock:
+            texture = teensy.texture
 
         # OSC: /ino/texture, textureID
         # if texture is different

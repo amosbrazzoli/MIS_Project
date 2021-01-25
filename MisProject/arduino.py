@@ -167,7 +167,7 @@ class MIS_Arduino:
         
     def state_dict(self):
         " Rendes the dictionary of the object for communication "
-        return { "X": self.x, "Y": self.y, "Z": self.z, "BPM": self.BPM }
+        return { "time": self.time, "X": self.x, "Y": self.y, "Z": self.z, "BPM": self.BPM }
 
 
 if __name__ == "__main__":

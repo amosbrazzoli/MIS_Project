@@ -1,5 +1,5 @@
 import select, socket, queue, json
-from arduino import MIS_Arduino
+from MisProject.arduino import MIS_Arduino
 from threading import Thread, Lock
 from time import time
 
@@ -14,7 +14,7 @@ def socket_data_process(from_socket):
 
 
 
-def socket_loop(arduino, lockduino):
+def socket_loop(arduino, teensy, lockduino, teensylock):
     t0 = time()
     i = 0
 
@@ -63,7 +63,10 @@ def socket_loop(arduino, lockduino):
                         continue
 
                     with lockduino:
-                        arduino.command(data)
+                        arduino.fan_command(data)
+                        arduino.wind_command(data)
+                    with teensylock:
+                        teensy.texture_command(data)
                     # push the data connection queue
                     ## message_queues[s].put(data)
                     if s not in outputs:
@@ -77,13 +80,14 @@ def socket_loop(arduino, lockduino):
                     del message_queues[s]
 
         for s in writable:
-            with lockduino:
-                MESSAGE = arduino.state_dict()
+            with teensylock:
+                MESSAGE = teensy.state_dict()
             i += 1
             try:
                 MESSAGE = json.dumps(MESSAGE)
                 #print("SOCKET SENT", i/(time()-t0))
                 MESSAGE =  f"{len(MESSAGE):>{HEADER_LEN}}:" + f"{MESSAGE:<{SENSOR_LEN}}"
+                print(MESSAGE)
                 s.send(bytes(MESSAGE, 'utf8'))
             except Exception as e:
                 print("SENDING ERROR: ", MESSAGE)
